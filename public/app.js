@@ -10,7 +10,7 @@ let home=true,page=1,sort='featured';const PER=12,inS=p=>p.stock==null||p.stock>
 async function init(){
   [S,P]=await Promise.all([fetch('/api/settings').then(r=>r.json()).catch(()=>({})),fetch('/api/products').then(r=>r.json()).catch(()=>[])]);
   for(const id in cart)if(!P.find(p=>p.id==id))delete cart[id];
-  const nm=S.shopName||'Our Shop';document.title=nm;$('#brand').textContent=nm;$('#hTag').textContent=S.tagline||'';
+  const nm=S.shopName||'Ethiopian Habesha Dress';document.title=nm;$('#brand').textContent=nm;$('#hTag').textContent=S.tagline||'';
   if(S.announcement){$('#ann').textContent=S.announcement;$('#ann').classList.remove('hide')}
   $('#foot').textContent='© '+new Date().getFullYear()+' '+nm;$('#fname').textContent=nm;$('#aboutT').textContent=S.about||`Welcome to ${nm}. Contact us if you have any question about our products.`;$('#fabout').textContent=S.about||'';$('#fcall').textContent=S.phone?'Call us: '+S.phone:'';
   $('#ddm').innerHTML=[...new Set(P.map(p=>p.cat))].map(c=>`<button data-c="${esc(c)}">${esc(c)}</button>`).join('');
