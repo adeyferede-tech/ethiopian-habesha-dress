@@ -44,7 +44,7 @@ const URLK = ['telegram', 'facebook', 'instagram', 'tiktok'];
 async function mailOut(to, subject, text, replyTo) {
   if (E.RESEND_API_KEY) {
     const r = await fetch('https://api.resend.com/emails', { method: 'POST', headers: { Authorization: `Bearer ${E.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ from: E.MAIL_FROM || 'Addis Market <onboarding@resend.dev>', to: [to], subject, text, ...(replyTo ? { reply_to: replyTo } : {}) }) });
+      body: JSON.stringify({ from: E.MAIL_FROM || 'Ethiopian Habesha Dress <onboarding@resend.dev>', to: [to], subject, text, ...(replyTo ? { reply_to: replyTo } : {}) }) });
     if (!r.ok) console.error('Resend:', await r.text());
   } else {
     await nodemailer.createTransport({ service: 'gmail', auth: { user: E.GMAIL_USER, pass: E.GMAIL_APP_PASSWORD } }).sendMail({ from: E.GMAIL_USER, to, subject, text, replyTo });
@@ -77,7 +77,7 @@ const SAMPLE = [['Yirgacheffe Coffee 1kg', 'Food', 1200, '☕'], ['Handwoven Gab
   const s = await db.getSettings();
   if (!s._seeded) {
     if (!(await db.products()).length) for (const [n, c, p, e] of SAMPLE) await db.addProduct({ name: n, cat: c, price: p, emoji: e, image: '', description: '', stock: null, active: true });
-    await db.setSettings({ shopName: 'Addis Market', tagline: 'Quality goods, delivered across Addis Ababa', ...s, _seeded: true });
+    await db.setSettings({ shopName: 'Ethiopian Habesha Dress', tagline: 'Quality goods, delivered across Addis Ababa', ...s, _seeded: true });
   }
 } catch (e) { console.error('Seed:', e.message); } })();
 
