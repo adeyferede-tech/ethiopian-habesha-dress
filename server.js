@@ -84,7 +84,18 @@ const SAMPLE = [['Yirgacheffe Coffee 1kg', 'Food', 1200, '☕'], ['Handwoven Gab
 // ---------- public API ----------
 app.get('/health', (_, s) => s.send('ok'));
 app.get('/api/products', async (_, s) => { try { s.json((await db.products()).filter(p => p.active !== false)); } catch (e) { console.error(e.message); s.status(500).json([]); } });
-app.get('/api/settings', async (_, s) => { try { const { _seeded, ...pub } = await db.getSettings(); s.json(pub); } catch { s.json({}); } });
+app.get('/api/settings', async (_, s) => { try { const { _seeded, _visits, ...pub } = await db.getSettings(); s.json(pub); } catch { s.json({}); } });
+
+// ---------- visitor counter (stored in settings, so it is permanent with Supabase) ----------
+const visitLimit = rateLimit({ windowMs: 60 * 1000, max: 30, standardHeaders: true, legacyHeaders: false });
+let vQueue = Promise.resolve();
+app.get('/api/visits', async (_, s) => { try { s.json({ visits: (await db.getSettings())._visits || 0 }); } catch { s.json({ visits: 0 }); } });
+app.post('/api/visits', visitLimit, (q, s) => {
+  vQueue = vQueue.then(async () => {
+    try { const st = await db.getSettings(), v = (st._visits || 0) + 1; await db.setSettings({ ...st, _visits: v }); s.json({ visits: v }); }
+    catch (e) { console.error('Visits:', e.message); s.json({ visits: 0 }); }
+  });
+});
 
 app.post('/api/order', orderLimit, async (q, s) => {
   try {
