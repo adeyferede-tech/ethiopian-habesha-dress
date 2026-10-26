@@ -142,3 +142,6 @@ function homeView(){
   $('#hrows').innerHTML=row('Featured',[...P].sort((x,y)=>x.id-y.id).slice(0,8),'data-c="All" data-all="1"')+row('On sale',sale.slice(0,8),'')+row('New arrivals',[...P].sort((x,y)=>y.id-x.id).slice(0,8),'data-s="new"')+cats.map(c=>row(c,P.filter(p=>p.cat===c).slice(0,8),`data-c="${esc(c)}"`)).join('');
   $('#htiles').innerHTML=cats.map(c=>{const p=P.find(x=>x.cat===c&&x.image);return `<button class="tile" data-c="${esc(c)}"${p?` style="background-image:url('${esc(p.image)}')"`:''}><span>${esc(c)}</span></button>`}).join('');
 }
+
+// visitor counter: counts once per browser session
+(async()=>{try{const n=!sessionStorage.getItem('v');const r=await fetch('/api/visits',{method:n?'POST':'GET'});sessionStorage.setItem('v','1');const d=await r.json();document.getElementById('visits').textContent='👁 '+(d.visits||0).toLocaleString()+' visits'}catch{}})();
