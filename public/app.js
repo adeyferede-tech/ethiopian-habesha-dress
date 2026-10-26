@@ -14,6 +14,7 @@ async function init(){
   if(S.announcement){$('#ann').textContent=S.announcement;$('#ann').classList.remove('hide')}
   $('#foot').textContent='© '+new Date().getFullYear()+' '+nm;$('#fname').textContent=nm;$('#aboutT').textContent=S.about||`Welcome to ${nm}. Contact us if you have any question about our products.`;$('#fabout').textContent=S.about||'';$('#fcall').textContent=S.phone?'Call us: '+S.phone:'';
   $('#ddm').innerHTML=[...new Set(P.map(p=>p.cat))].map(c=>`<button data-c="${esc(c)}">${esc(c)}</button>`).join('');
+  $('#fcols').innerHTML=[...new Set(P.map(p=>p.cat))].map(c=>`<button data-c="${esc(c)}">${esc(c)}</button>`).join('');
   let v='';
   if(S.address)v+=`<p><b>Address:</b> ${esc(S.address)}</p>`;if(S.hours)v+=`<p><b>Hours:</b> ${esc(S.hours)}</p>`;
   if(S.phone)v+=`<p><b>Phone:</b> <a href="tel:${esc(S.phone.replace(/[^\d+]/g,''))}">${esc(S.phone)}</a></p>`;
@@ -21,6 +22,9 @@ async function init(){
   const wa=(S.whatsapp||'').replace(/\D/g,''),soc=[['Telegram',S.telegram],['Facebook',S.facebook],['Instagram',S.instagram],['TikTok',S.tiktok],['WhatsApp',wa&&'https://wa.me/'+wa]].filter(x=>x[1]);
   $('#fsoc').innerHTML=soc.map(([l,u])=>A(u,l,'o')).join('');if(soc.length)v+=`<div class="soc">${soc.map(([l,u])=>A(u,l,'s')).join('')}</div>`;
   $('#vinfo').innerHTML=v||'<p>Contact details will be added soon.</p>';
+  const tel=S.phone?S.phone.replace(/[^\d+]/g,''):'',ch=soc.find(x=>x[0]==='WhatsApp')||soc.find(x=>x[0]==='Telegram');
+  if(S.hours)$('#uhrs').textContent='🕘 '+S.hours;if(S.phone)$('#uph').innerHTML=`📞 <a href="tel:${esc(tel)}">${esc(S.phone)}</a>`;
+  $('#ctaBtns').innerHTML='<button class="btn s" data-c="All" data-all="1">Start shopping</button>'+(S.phone?`<a class="btn o" href="tel:${esc(tel)}">Call us</a>`:'')+(ch?A(ch[1],'Message us on '+ch[0],'o'):'');
   const la=parseFloat(S.lat),lo=parseFloat(S.lng);
   if(isFinite(la)&&isFinite(lo))$('#vmap').innerHTML=`<iframe title="Map" loading="lazy" src="https://www.openstreetmap.org/export/embed.html?bbox=${lo-.01},${la-.006},${lo+.01},${la+.006}&layer=mapnik&marker=${la},${lo}"></iframe><p>${A(`https://www.google.com/maps/dir/?api=1&destination=${la},${lo}`,'Get directions','')}</p>`;
   render();
@@ -137,6 +141,10 @@ function homeView(){
   $('#home').classList.toggle('hide',!home);$('#band').classList.toggle('hide',home);$('#shop').classList.toggle('hide',home);
   if(!home)return;
   const sale=P.filter(p=>p.old_price>p.price),pct=Math.max(0,...sale.map(p=>Math.round(100-p.price/p.old_price*100))),cats=[...new Set(P.map(p=>p.cat))];
+  const hf=[...P].sort((x,y)=>y.id-x.id).find(p=>p.image)||P[0];
+  $('#hwrap').classList.toggle('solo',!hf);$('#hfeat').classList.toggle('hide',!hf);
+  if(hf)$('#hfeat').innerHTML=`<div class="pimg" data-qv="${hf.id}">${pic(hf)}</div><div class="hci"><div><small>Featured</small><a class="pt" data-qv="${hf.id}">${esc(hf.name)}</a><div class="pp">${price(hf)}</div></div><button class="btn s" data-qv="${hf.id}">View</button></div>`;
+  $('#hstats').innerHTML=[[P.length,'Products'],[cats.length,'Collections'],[P.filter(inS).length,'In stock now'],[4,'Ways to pay']].map(([n,l])=>`<div><b>${n}</b><span>${l}</span></div>`).join('');
   $('#hh').textContent=pct?`Up to ${pct}% off`:(S.shopName||'Welcome');$('#hp').textContent=S.tagline||'';
   const row=(t,l,at)=>l.length?`<section class="hs"><div class="hh"><h2>${esc(t)}</h2>${at?`<button class="btn o" ${at}>View all</button>`:''}</div><div class="hrow">${l.map(pcard).join('')}</div></section>`:'';
   $('#hrows').innerHTML=row('Featured',[...P].sort((x,y)=>x.id-y.id).slice(0,8),'data-c="All" data-all="1"')+row('On sale',sale.slice(0,8),'')+row('New arrivals',[...P].sort((x,y)=>y.id-x.id).slice(0,8),'data-s="new"')+cats.map(c=>row(c,P.filter(p=>p.cat===c).slice(0,8),`data-c="${esc(c)}"`)).join('');
